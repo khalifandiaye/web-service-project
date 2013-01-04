@@ -37,14 +37,13 @@ exports.collections = function(req, res){
 		+'<app:accept>application/atom+xml;type=entry</app:accept>'
 		+'</app:collection>'
 		+'</feed>';
-	res.writeHead(200, {"Content-Type": "application/atom+xml"});
-	res.write(data);
-	res.end();
 	fs.writeFile('./media/collections.atom', data, function (err) {
   	  if (err) throw err;
   	  console.log('./media/collections.atom created');
 	});
-	
+	res.writeHead(200, {"Content-Type": "application/atom+xml"});
+	res.write(data);
+	res.end();
     }
   }); 	
 };

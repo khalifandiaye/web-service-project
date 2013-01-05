@@ -25,18 +25,19 @@ exports.collections = function(req, res){
 
     } else {
       //generate the atom feed
+      var uuid = require('node-uuid');
       var date = new Date();
-      var data = '<?xml version="1.0" encoding="utf-8"?>'
+      var data = '<?xml version="1.0" encoding="utf-8"?>\n'
 		+'<feed xmlns="http://www.w3.org/2005/Atom"'
-		+'xmlns:app="http://www.w3.org/2007/app">'
-		+'<title>Collections</title>'
-		+'<updated>'+date.toISOString()+'</updated>'
-		+'<id>tag:localhost:3000,2013-01-03:/20130103235353615</id>' 
-		+'<app:collection href="collection">'
-		+'<title>Collections</title>'
-		+'<app:accept>application/atom+xml;type=entry</app:accept>'
-		+'</app:collection>'
-		+'</feed>';
+		+'xmlns:app="http://www.w3.org/2007/app">\n'
+		+'<title>Collections</title>\n'
+		+'<updated>'+date.toISOString()+'</updated>\n'
+		+'<id>urn:uuid:'+uuid.v1()+'</id>\n' 
+		+'<app:collection href="collection">\n'
+		+'<title>Collections</title>\n'
+		+'<app:accept>application/atom+xml;type=entry</app:accept>\n'
+		+'</app:collection>\n'
+		+'</feed>\n';
 	res.writeHead(200, {"Content-Type": "application/atom+xml"});
 	res.write(data);
 	res.end();

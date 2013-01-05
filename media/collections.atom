@@ -1,1 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom"xmlns:app="http://www.w3.org/2007/app"><title>Collections</title><updated>2013-01-04T22:49:28.290Z</updated><id>tag:localhost:3000,2013-01-03:/20130103235353615</id><app:collection href="collection"><title>Collections</title><app:accept>application/atom+xml;type=entry</app:accept></app:collection></feed>
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"xmlns:app="http://www.w3.org/2007/app">
+<title>Collections</title>
+<updated>2013-01-05T14:15:35.337Z</updated>
+<id>urn:uuid:5f54b0a0-5742-11e2-b1fc-53dbd3ad364f</id>
+<app:collection href="collection">
+<title>Collections</title>
+<app:accept>application/atom+xml;type=entry</app:accept>
+</app:collection>
+</feed>

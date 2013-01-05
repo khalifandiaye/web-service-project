@@ -10,6 +10,7 @@
     "ejs": "*",
     "stylus": "*",
     "xml-writer": "*",
-    "atom-writer": "*"	 	
+    "atom-writer": "*",
+    "node-uuid": "*" 	
   }
 }

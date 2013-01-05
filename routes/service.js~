@@ -3,18 +3,39 @@
  * GET home page.
  */
 
+var internalError = function(err, res) {
+  res.writeHead(500, {"Content-Type": "text/plain"});
+  res.write(err + "\n");
+  res.end();
+}
+
+var unsupportedMediaType = function(err, res) {
+  res.writeHead(415, {"Content-Type": "text/plain"});
+  res.write(err + "\n");
+  res.end();
+}
+
+var UNSUPPORTED_MEDIA = 415,
+    INTERNAL_ERROR = 500;
+
+
+var errorResponse = function(code, err, res) {
+  res.writeHead(code, {"Content-Type": "text/plain"});
+  res.write(err + "\n");
+  res.end();
+}
+
 exports.collections = function(req, res){
   var fs = require('fs');
 
   fs.exists('./media/collections.atom', function (exists) {
+   
     if (exists) {
       //we have the file
       fs.readFile('./media/collections.atom', function (err, data) {
         if (err) {
           //unexpected internal error
-	  res.writeHead(500, {"Content-Type": "text/plain"});
-          res.write(errs + "\n");
-          res.end();
+	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
 	  res.writeHead(200, {"Content-Type": "application/atom+xml"});
 	  res.write(data);
@@ -32,7 +53,7 @@ exports.collections = function(req, res){
 		+'xmlns:app="http://www.w3.org/2007/app">\n'
 		+'<title>Collections</title>\n'
 		+'<updated>'+date.toISOString()+'</updated>\n'
-		+'<id>tag:localhost:3000,2013-01-03:/20130103235353615</id>\n' 
+		+'<id>urn:uuid:'+uuid.v1()+'</id>\n' 
 		+'<app:collection href="collection">\n'
 		+'<title>Collections</title>\n'
 		+'<app:accept>application/atom+xml;type=entry</app:accept>\n'
@@ -42,10 +63,59 @@ exports.collections = function(req, res){
 	res.write(data);
 	res.end();
 	fs.writeFile('./media/collections.atom', data, function (err) {
-  	  if (err) throw err;
-  	  console.log('./media/collections.atom created');
+  	  if (!err)
+  	    console.log('./media/collections.atom created');
 	});
 	
     }
-  }); 	
+  }); 
+};
+
+exports.newCollection = function(req, res){
+  var xml2js = require('xml2js');
+  var parser = new xml2js.Parser();
+  var newEntryJSON;
+  req.on("data", function(data) {
+    parser.parseString(data, function(err, result){
+      if (err) errorResponse(INTERNAL_ERROR,err, res);
+      newEntryJSON=result;
+    });
+  });
+  
+  req.on("end", function(){
+    console.log(newEntryJSON);
+  });
+
+  /*
+  var fs = require('fs');
+  
+  fs.readdir('./media/', function (err, files) {
+    if (err) {
+      //unexpected internal error
+      errorResponse(INTERNAL_ERROR,err, res);
+    } else {
+      //console.log(files);
+      //assign id
+      var max = 1;
+      var intRegex = /^\d+$/;
+      for (var i in files) {
+	if(intRegex.test(files[i]) && (parseInt(files[i]) > max)) 
+ 	  max = parseInt(files[i]);
+         
+      }
+      max++; 
+            var content_type = req.headers['content-type'];
+      if (content_type == 'application/atom+xml;type=entry') {
+        
+	
+        fs.mkdir('./media/' + max, function(err){
+	  if (err) errorResponse(INTERNAL_ERROR,err, res);
+	  console.log('created folder ./media/' + max);
+        });
+      } else {
+        errorResponse(UNSUPPORTED_MEDIA, "only application/atom+xml;type=entry accepted\n", 
+											res);
+      }
+    }
+  }); */
 };

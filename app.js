@@ -11,6 +11,7 @@ var express = require('express')
 
 var app = express();
 
+
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
@@ -31,6 +32,7 @@ app.configure('development', function(){
 });
 
 app.get('/', service.collections); //discover collections
+app.post('/',service.newCollection); //add new collection
 
 
 http.createServer(app).listen(app.get('port'), function(){

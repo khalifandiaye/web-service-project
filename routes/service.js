@@ -63,17 +63,31 @@ exports.collections = function(req, res){
 
 exports.newCollection = function(req, res){
   var xml2js = require('xml2js');
+  var js2xml = require('obj2xml');
   var parser = new xml2js.Parser();
-  var newEntryJSON;
+  var newEntry;
   req.on("data", function(data) {
     parser.parseString(data, function(err, result){
       if (err) errorResponse(INTERNAL_ERROR,err, res);
-      newEntryJSON=result;
+      newEntry=result;
     });
   });
   
   req.on("end", function(){
-    console.log(newEntryJSON);
+    var content_type = req.headers['content-type'];
+    if (content_type == 'application/atom+xml;type=entry') {
+      var uuid = require('node-uuid');
+      var id = 'urn:uuid:'+uuid.v1();
+      //newEntry.entry["id"] = [id];
+      var date = new Date();
+      //newEntry.entry["updated"] = [date.toISOString()];
+      var inspect = require('eyes').inspector({maxLength: false})	
+      console.log(inspect(newEntry));
+      //console.log(js2xml.convert(newEntry));
+    } else {
+      errorResponse(UNSUPPORTED_MEDIA, "only application/atom+xml;type=entry accepted\n", 
+											res);s
+    }
   });
 
   /*

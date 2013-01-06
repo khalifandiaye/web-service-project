@@ -1,0 +1,9 @@
+HTTP/1.1 201 Created
+X-Powered-By: Express
+Set-Cookie: connect.sid=s%3A49msSF363tHgzdk%2BH0tc78ZP.0vSxFDDwpXRJdaRhrmIsq5q7sdBFwlXzwNYWe7Y8U18; Path=/; HttpOnly
+Content-Type: application/atom+xml;type=entry
+Location: 127.0.0.1:3000/10
+Date: Sun, 06 Jan 2013 18:28:30 GMT
+Connection: keep-alive
+Transfer-Encoding: chunked
+

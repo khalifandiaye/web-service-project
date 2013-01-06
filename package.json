@@ -11,8 +11,7 @@
     "stylus": "*",
     "node-uuid": "*",
     "xml2js": "*",
-    "xml": "*",
-    "obj2xml": "*",
+    "xml-writer": "*",
     "eyes": "*"		
   }
 }

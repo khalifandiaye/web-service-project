@@ -199,6 +199,77 @@ exports.deleteCollection = function(req, res) {
      
     }
   });
-}
+};
+
+exports.changeCollectionMetadata = function(req, res) {
+  var fs = require('fs');
+  var path = './media/' + req.params.id + '/entry.xml';
+  var xml2js = require('xml2js');
+  var parser = new xml2js.Parser();
+  var newEntry;
+  req.on("data", function(data) {
+    parser.parseString(data, function(err, result){
+       newEntry = result;
+    });
+  });
+
+  req.on("end", function(){
+    var content_type = req.headers['content-type'];
+    fs.exists(path, function (exists) {
+      if (exists) {
+        
+        if ((content_type == 'application/atom+xml;type=entry') && newEntry.entry) {
+          fs.readFile(path, "utf8", function (err, data) {
+            if (err) {
+              //unexpected internal error
+	      errorResponse(INTERNAL_ERROR,err, res);
+	    } else {
+              data = '<?xml version="1.0" encoding="utf-8"?>\n' + data;
+              var parser2 = new xml2js.Parser();
+              parser2.parseString(data, function(err, oldEntry){
+                if (err) console.log ("ERROR");
+                var date = new Date();
+                var update = date.toISOString();
+                var title;
+                if (newEntry.entry['title'])
+	          title = newEntry.entry['title']
+                else title = "no name"; 
+                var xmlEntry = '<entry>\n'
+                             + '<id>' + oldEntry.entry['id'] + '</id>\n'
+                             + '<title>' + title + '</title>\n'    
+                             + '<updated>' + update + '</updated>\n';
+                if (newEntry.entry['author'])
+	          xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
+                if (newEntry.entry['rights'])
+	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
+                xmlEntry = xmlEntry + '</entry>';
+
+ 	        //send response
+                res.writeHead(200);
+                res.end();
+
+	        //save into file			
+	        fs.writeFile(path, xmlEntry, function (err) {
+	          if (!err)
+		    console.log("updated entry.xml");
+	        });
+	        fs.writeFile('./media/update_time', update, function (err){
+                  if (!err)
+		    console.log("update_time file is renewed");
+	        });
+              });
+            }
+          });   
+        } else {
+          errorResponse(UNSUPPORTED_MEDIA, "only application/atom+xml;type=entry accepted\n", 
+											res);
+        }
+      } else {
+        errorResponse(404, "not found\n",res);
+      }
+    });
+    
+  });
+};
 
 

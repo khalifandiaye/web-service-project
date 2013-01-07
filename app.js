@@ -34,6 +34,7 @@ app.configure('development', function(){
 app.get('/', service.collections); //discover collections
 app.post('/', service.newCollection); //add new collection
 app.delete('/:id', service.deleteCollection); //delete existing collection
+app.put('/:id', service.changeCollectionMetadata); //Change collection's metadata
 
 
 http.createServer(app).listen(app.get('port'), function(){

@@ -4,10 +4,12 @@
  */
 
 var express = require('express')
-  , service = require('./routes/service')
+  , collections = require('./routes/service')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , comments = require('./routes/comments');
+   
 
 var app = express();
 
@@ -31,10 +33,17 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', service.collections); //discover collections
-app.post('/', service.newCollection); //add new collection
-app.delete('/:id', service.deleteCollection); //delete existing collection
-app.put('/:id', service.changeCollectionMetadata); //Change collection's metadata
+app.get('/', collections.collections); //discover collections
+app.get('/:id', collections.collection); //get a collection
+app.post('/', collections.newCollection); //add new collection
+app.delete('/:id', collections.deleteCollection); //delete existing collection
+app.put('/:id', collections.changeCollectionMetadata); //Change collection's metadata
+
+//	app.get('/:col_id/comments', comments.list); //list comments
+//app.get('/:col_id/comments/:com_id', comments.getComment); //get a comment
+//app.post('/:col_id/comments', comments.addComment); //add new comment
+//app.delete('/:col_id/comments/:com_id', comments.deleteComment); //delete existing comment
+//app.put('/:col_id/comments/:com_id', comments.replaceComment); //replace comment (edit)
 
 
 http.createServer(app).listen(app.get('port'), function(){

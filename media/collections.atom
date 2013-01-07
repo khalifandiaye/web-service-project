@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"xmlns:app="http://www.w3.org/2007/app">
+<feed xmlns="http://www.w3.org/2005/Atom"
+xmlns:app="http://www.w3.org/2007/app">
 <title>Collections</title>
-<id>urn:uuid:2ada9470-58e1-11e2-b7c7-a3f19bfa0479</id>
+<id>urn:uuid:d6e8c850-5903-11e2-82ab-e9c28c443735</id>
 <app:collection href="">
 <title>Collections</title>
 <app:accept>application/atom+xml;type=entry</app:accept>

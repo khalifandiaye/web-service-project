@@ -1,7 +1,7 @@
 HTTP/1.1 200 OK
 X-Powered-By: Express
-Set-Cookie: connect.sid=s%3APvHz58TcoN5gQ%2FHvs38FETHZ.XG1BsIYJRB5jfstEx678LPL2VMx9%2BtRKzEdtBY8ZqdE; Path=/; HttpOnly
-Date: Mon, 07 Jan 2013 15:45:02 GMT
+Set-Cookie: connect.sid=s%3AewmhmMOWa8yFBtX6jYVMwP26.aF45f3fZ%2FSx9MN%2F62qvFnQ4%2B8zQ9bojl1XA0C6as59I; Path=/; HttpOnly
+Date: Mon, 07 Jan 2013 18:25:32 GMT
 Connection: keep-alive
 Transfer-Encoding: chunked
 

@@ -67,7 +67,7 @@ exports.collections = function(req, res){
       var uuid = require('node-uuid');
       var date = new Date();
       var data = '<?xml version="1.0" encoding="utf-8"?>\n'
-		+'<feed xmlns="http://www.w3.org/2005/Atom"'
+		+'<feed xmlns="http://www.w3.org/2005/Atom"\n'
 		+'xmlns:app="http://www.w3.org/2007/app">\n'
 		+'<title>Collections</title>\n'
 		+'<id>urn:uuid:'+uuid.v1()+'</id>\n' 
@@ -80,11 +80,38 @@ exports.collections = function(req, res){
   	  if (!err)
   	    console.log('./media/collections.atom created');
 	});
-	data = data + '<updated>'+date.toISOString()+'</updated>\n';
+        var update = date.toISOString();
+	data = data + '<updated>'+update+'</updated>\n';
+        fs.writeFile('./media/update_time', update, function (err){
+          if (!err)
+	    console.log("update_time file is renewed");
+	});
         collectionsFeedSender(res, data);	
     }
   }); 
 };
+
+exports.collection = function(req, res) {
+  var fs = require('fs');
+  var path = './media/' + req.params.id + '/entry.xml';
+  fs.exists(path, function (exists) {
+    if(exists) {
+      fs.readFile(path, "utf8", function (err, data) {
+        if (err) {
+          //unexpected internal error
+	  errorResponse(INTERNAL_ERROR,err, res);
+	} else {
+          res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
+          res.write(data);
+          res.end();
+          
+        }
+      }); 
+    } else {
+      errorResponse(404, "not found\n",res);
+    }
+  });
+}
 
 var nextFolder = function (files) {
   var max = 0;
@@ -132,7 +159,8 @@ exports.newCollection = function(req, res){
 	xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
       if (newEntry.entry['rights'])
 	xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
-      
+      if (newEntry.entry['summary'])
+	xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
       var fs = require('fs');
       fs.readdir('./media/', function(err, files){
 	if (err) {
@@ -204,6 +232,7 @@ exports.deleteCollection = function(req, res) {
 exports.changeCollectionMetadata = function(req, res) {
   var fs = require('fs');
   var path = './media/' + req.params.id + '/entry.xml';
+  var folder = req.params.id;
   var xml2js = require('xml2js');
   var parser = new xml2js.Parser();
   var newEntry;
@@ -242,6 +271,12 @@ exports.changeCollectionMetadata = function(req, res) {
 	          xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
                 if (newEntry.entry['rights'])
 	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
+                if (newEntry.entry['summary'])
+                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
+                xmlEntry = xmlEntry + '<link rel="self" href="'
+	               + folder + '"/>\n'
+		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
+		       + folder + '"/>\n';
                 xmlEntry = xmlEntry + '</entry>';
 
  	        //send response
@@ -251,7 +286,7 @@ exports.changeCollectionMetadata = function(req, res) {
 	        //save into file			
 	        fs.writeFile(path, xmlEntry, function (err) {
 	          if (!err)
-		    console.log("created entry.xml");
+		    console.log("updated entry.xml");
 	        });
 	        fs.writeFile('./media/update_time', update, function (err){
                   if (!err)

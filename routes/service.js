@@ -15,7 +15,29 @@ var errorResponse = function(code, err, res) {
   res.end();
 }
 
-var collectionsFeedSender
+//Too much blocking change later
+var collectionsFeedSender = function(res, feed) {
+  var fs = require('fs');
+  fs.readdir('./media/', function(err, files){
+    var intRegex = /^\d+$/;
+    
+    for (var i in files) {  
+      if(intRegex.test(files[i])) {
+        
+        var file = './media/' + files[i] +'/entry.xml';
+	if (fs.existsSync(file)) {
+          console.log(file);
+          feed = feed + fs.readFileSync(file) + '\n';
+	}
+      }
+    }
+    feed = feed + '</feed>';
+    res.writeHead(200, {"Content-Type": "application/atom+xml"});
+    res.write(feed);
+    res.end();	
+  });
+  
+}
 
 exports.collections = function(req, res){
   var fs = require('fs');
@@ -29,13 +51,17 @@ exports.collections = function(req, res){
           //unexpected internal error
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
-	  res.writeHead(200, {"Content-Type": "application/atom+xml"});
-	  res.write(data);
-	  res.end();
+          fs.readFile('./media/update_time', function (err, time) {
+	    if (err) {
+              //unexpected internal error
+	      errorResponse(INTERNAL_ERROR,err, res);
+	    } else {
+	      data = data + '<updated>'+time+'</updated>\n';
+	      collectionsFeedSender(res, data);
+	    } 
+          });
 	}
-	
       });      
-
     } else {
       //generate the atom feed
       var uuid = require('node-uuid');
@@ -44,27 +70,24 @@ exports.collections = function(req, res){
 		+'<feed xmlns="http://www.w3.org/2005/Atom"'
 		+'xmlns:app="http://www.w3.org/2007/app">\n'
 		+'<title>Collections</title>\n'
-		+'<updated>'+date.toISOString()+'</updated>\n'
 		+'<id>urn:uuid:'+uuid.v1()+'</id>\n' 
 		+'<app:collection href="">\n'
 		  +'<title>Collections</title>\n'
 		  +'<app:accept>application/atom+xml;type=entry</app:accept>\n'
 		+'</app:collection>\n';
-		
-	res.writeHead(200, {"Content-Type": "application/atom+xml"});
-	res.write(data +'</feed>\n');
-	res.end();
+
 	fs.writeFile('./media/collections.atom', data, function (err) {
   	  if (!err)
   	    console.log('./media/collections.atom created');
 	});
-	
+	data = data + '<updated>'+date.toISOString()+'</updated>\n';
+        collectionsFeedSender(res, data);	
     }
   }); 
 };
 
 var nextFolder = function (files) {
-  var max = 1;
+  var max = 0;
   var intRegex = /^\d+$/;
   for (var i in files) {
     if(intRegex.test(files[i]) && (parseInt(files[i]) > max)) 
@@ -74,6 +97,8 @@ var nextFolder = function (files) {
   max++;
   return max; 
 };
+
+
 
 exports.newCollection = function(req, res){
   var xml2js = require('xml2js');
@@ -94,14 +119,14 @@ exports.newCollection = function(req, res){
       var id = 'urn:uuid:'+uuid.v1();
       var date = new Date();
       var title;
+      var update = date.toISOString();
       if (newEntry.entry['title'])
 	title = newEntry.entry['title']
       else title = "no name"; 
-      xmlEntry = '<?xml version="1.0" encoding="utf-8"?>\n' 
-               + '<entry>\n'
+      xmlEntry = '<entry>\n'
                + '<id>' + id + '</id>\n'
                + '<title>' + title + '</title>\n'    
-               + '<updated>' + date.toISOString() + '</updated>\n';
+               + '<updated>' + update + '</updated>\n';
       if (newEntry.entry['author'])
 	xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
       if (newEntry.entry['rights'])
@@ -127,12 +152,17 @@ exports.newCollection = function(req, res){
 	      var location = req.headers['host'] + '/' + folder;	
 	      res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",
 				  "Location": location});
-              res.write(xmlEntry + "\n");
+              res.write('<?xml version="1.0" encoding="utf-8"?>\n' + xmlEntry + "\n");
               res.end();
 
 	      //save into file			
 	      fs.writeFile('./media/' + folder + '/entry.xml', xmlEntry, function (err) {
-		console.log("created entry.xml");
+	        if (!err)
+		  console.log("created entry.xml");
+	      });
+	      fs.writeFile('./media/update_time', update, function (err){
+                if (!err)
+		  console.log("update_time file is renewed");
 	      });
             }
           });

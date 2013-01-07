@@ -8,7 +8,8 @@ var express = require('express')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
-  , comments = require('./routes/comments');
+  , comments = require('./routes/comments')
+  , images = require('./routes/images');
    
 
 var app = express();
@@ -39,11 +40,20 @@ app.post('/', collections.newCollection); //add new collection
 app.delete('/:id', collections.deleteCollection); //delete existing collection
 app.put('/:id', collections.changeCollectionMetadata); //Change collection's metadata
 
-//	app.get('/:col_id/comments', comments.list); //list comments
+//app.get('/:col_id/comments', comments.list); //list comments
 //app.get('/:col_id/comments/:com_id', comments.getComment); //get a comment
 //app.post('/:col_id/comments', comments.addComment); //add new comment
 //app.delete('/:col_id/comments/:com_id', comments.deleteComment); //delete existing comment
 //app.put('/:col_id/comments/:com_id', comments.replaceComment); //replace comment (edit)
+
+app.get('/:col_id/images', images.list); //list images
+//app.get('/:col_id/images/:com_id/meta', images.getImageData); //get image metadata
+//app.get('/:col_id/images/:com_id/image', images.getImageFile); //get image file
+app.post('/:col_id/images', images.addImage); //add new image
+//app.delete('/:col_id/images/:com_id', images.deleteImage); //delete image (file + metadata)
+//app.put('/:col_id/images/:com_id/meta', comments.replaceImageMeta); //replace (edit) image meta
+//app.put('/:col_id/images/:com_id/image', comments.replaceImageFile); //replace (edit) image file
+
 
 
 http.createServer(app).listen(app.get('port'), function(){

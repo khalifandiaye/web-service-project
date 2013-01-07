@@ -32,7 +32,8 @@ app.configure('development', function(){
 });
 
 app.get('/', service.collections); //discover collections
-app.post('/',service.newCollection); //add new collection
+app.post('/', service.newCollection); //add new collection
+app.delete('/:id', service.deleteCollection); //delete existing collection
 
 
 http.createServer(app).listen(app.get('port'), function(){

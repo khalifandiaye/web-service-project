@@ -10,7 +10,7 @@
     "ejs": "*",
     "stylus": "*",
     "node-uuid": "*",
-    "node-xml2js": "*",
+    "xml2js": "*",
     "xml-writer": "*",
     "eyes": "*"		
   }

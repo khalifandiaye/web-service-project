@@ -27,7 +27,7 @@ var collectionsFeedSender = function(res, feed) {
         var file = './media/' + files[i] +'/entry.xml';
 	if (fs.existsSync(file)) {
           console.log(file);
-          feed = feed + fs.readFileSync(file) + '/n';
+          feed = feed + fs.readFileSync(file) + '\n';
 	}
       }
     }
@@ -118,8 +118,9 @@ exports.newCollection = function(req, res){
       var uuid = require('node-uuid');
       var id = 'urn:uuid:'+uuid.v1();
       var date = new Date();
-      var title;
       var update = date.toISOString();
+      var title;
+      
       if (newEntry.entry['title'])
 	title = newEntry.entry['title']
       else title = "no name"; 
@@ -175,5 +176,28 @@ exports.newCollection = function(req, res){
     }
   });
 };
+
+exports.deleteCollection = function(req, res) {
+  var fs = require('fs');
+  var collection = './media/' + req.params.id;
+  fs.exists(collection, function (exists) {
+    if (exists) {
+      var wrench = require('wrench'),
+            util = require('util');
+      wrench.rmdirSyncRecursive(collection, true);
+      res.writeHead(200, {"Content-Type": "text/plain"});
+      res.write("OK\n");
+      res.end();
+     
+      fs.writeFile('./media/update_time', update, function (err){
+        if (!err)
+	  console.log("update_time file is renewed");
+      });
+    } else {
+      errorResponse(404, "not found\n",res);
+     
+    }
+  });
+}
 
 

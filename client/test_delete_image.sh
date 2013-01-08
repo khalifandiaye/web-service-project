@@ -1,2 +1,2 @@
 #!/bin/bash
-echo `curl --request DELETE "http://127.0.0.1:3000/1/images/6/meta"`
+echo `curl --request DELETE "http://127.0.0.1:3000/1/images/2/meta"`

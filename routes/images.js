@@ -250,20 +250,20 @@ exports.addImage = function(req, res) {
 }
 
 
-exports.deleteCollection = function(req, res) {
+exports.deleteImage = function(req, res) {
   var fs = require('fs');
-  var collection = './media/' + req.params.id;
-  fs.exists(collection, function (exists) {
+  var imageDir = './media/' + req.params.col_id + '/' + req.params.img_id;
+  fs.exists(imageDir, function (exists) {
     if (exists) {
       var wrench = require('wrench'),
             util = require('util');
-      wrench.rmdirSyncRecursive(collection, true);
+      wrench.rmdirSyncRecursive(imageDir, true);
       res.writeHead(200, {"Content-Type": "text/plain"});
       res.write("OK\n");
       res.end();
       var date = new Date();
       var update = date.toISOString();
-      fs.writeFile('./media/update_time', update, function (err){
+      fs.writeFile('./media/' + req.params.col_id + '/update_time', update, function (err){
         if (!err)
 	  console.log("update_time file is renewed");
       });

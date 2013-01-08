@@ -48,7 +48,7 @@ app.put('/:id', collections.changeCollectionMetadata); //Change collection's met
 
 app.get('/:col_id/images', images.list); //list images
 app.get('/:col_id/images/:img_id/meta', images.getImageMeta); //get image metadata
-//app.get('/:col_id/images/:com_id/image', images.getImageFile); //get image file
+app.get('/:col_id/images/:img_id/image', images.getImageFile); //get image file
 app.post('/:col_id/images', images.addImage); //add new image
 //app.delete('/:col_id/images/:com_id', images.deleteImage); //delete image (file + metadata)
 //app.put('/:col_id/images/:com_id/meta', comments.replaceImageMeta); //replace (edit) image meta

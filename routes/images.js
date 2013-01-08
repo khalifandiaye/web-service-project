@@ -121,6 +121,35 @@ exports.getImageMeta = function(req, res) {
   });
 }
 
+
+exports.getImageFile = function(req, res) {
+  var fs = require('fs');
+  var path = './media/' + req.params.col_id + '/' + req.params.img_id;
+  fs.exists(path, function (exists) {
+    if(exists) {
+      fs.exists(path + '/image.jpeg', function(err, data) {
+        var type;
+        if (exists) type = "jpeg"; else type = "png";
+        fs.readFile(path + '/image.' + type, function (err, data) {
+          if (err) {
+            //unexpected internal error
+	    errorResponse(INTERNAL_ERROR,err, res);
+	  } else {
+            type = 'image/' + type;
+            res.writeHead(200, {"Content-Type": type});
+            res.write(data);
+            res.end();
+          }
+        }); 
+      });
+      
+    } else {
+      console.log(path);
+      errorResponse(404, "not found\n",res);
+    }
+  });
+}
+
 var nextFolder = function (files) {
   var max = 0;
   var intRegex = /^\d+$/;
@@ -180,7 +209,7 @@ exports.addImage = function(req, res) {
                   var imageURI = collectionNo + '/images/' + folder + '/image';
                   if (ct = "image/jpeg") file = "image.jpeg";
                   else if (ct = "image/png") file = "image.png";
-                  fs.writeFile(path + '/' + file, imageData, function (err) {
+                  fs.writeFile(path + '/image' + file, imageData, function (err) {
 	            if (err) errorResponse(INTERNAL_ERROR,err, res);
 		    else {  
                       console.log("created image file");

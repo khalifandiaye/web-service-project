@@ -1,7 +1,9 @@
 <entry>
-<id>urn:uuid:58549dc0-5912-11e2-99f6-e1b0cf91770e</id>
-<title>bmw</title>
-<updated>2013-01-08T03:41:04.757Z</updated>
-<summary> nice car </summary><link rel="self" href="1"/>
+<id>urn:uuid:ca92def0-5968-11e2-b05f-332b769d6fa4</id>
+<title>no name</title>
+<updated>2013-01-08T07:55:38.463Z</updated>
+<link rel="self" href="1"/>
 <link rel="edit" type="application/atom+xml;type=entry" href="1"/>
+<link rel="images" href="1/images"/>
+<link rel="comments" href="1/comments"/>
 </entry>

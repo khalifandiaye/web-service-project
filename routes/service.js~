@@ -172,10 +172,8 @@ exports.newCollection = function(req, res){
 	    if (err) errorResponse(INTERNAL_ERROR,err, res);
 	    else { 
 	      console.log('created folder ./media/' + folder);
-	      xmlEntry = xmlEntry + '<link rel="self" href="'
-	               + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
-		       + folder + '"/>\n';
+	      xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>\n'
+		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>\n';
 	      xmlEntry = xmlEntry + '</entry>';
 	      //send response
 	      var location = req.headers['host'] + '/' + folder;	
@@ -273,14 +271,14 @@ exports.changeCollectionMetadata = function(req, res) {
 	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
                 if (newEntry.entry['summary'])
                   xmlEntry = xmlEntry + '<summary>' + newEntry.entry['summary'] + '</summary>';
-                xmlEntry = xmlEntry + '<link rel="self" href="'
-	               + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
-		       + folder + '"/>\n';
+                xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>\n'
+		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>\n'
+                       + '<link rel="images" href="' + folder + '/images"/>\n'
+                       + '<link rel="comments" href="' + folder + '/comments"/>\n';
                 xmlEntry = xmlEntry + '</entry>';
 
  	        //send response
-                res.writeHead(200);
+                res.writeHead(204);
                 res.end();
 
 	        //save into file			

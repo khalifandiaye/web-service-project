@@ -207,6 +207,10 @@ exports.newCollection = function(req, res){
                 if (!err)
 		  console.log("update_time file is renewed");
 	      });
+	      fs.mkdir('./media/' + folder + '/comments', function (err){
+		if (!err)
+		  console.log("comments foder is created"); 
+              });
             }
           });
         }

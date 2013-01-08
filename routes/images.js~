@@ -102,6 +102,7 @@ exports.list = function(req, res){
 exports.getImageMeta = function(req, res) {
   var fs = require('fs');
   var path = './media/' + req.params.col_id + '/' + req.params.img_id + '/entry.xml';
+  var accept = req.headers["accept"];
   fs.exists(path, function (exists) {
     if(exists) {
       fs.readFile(path, "utf8", function (err, data) {
@@ -240,7 +241,10 @@ exports.addImage = function(req, res) {
                         if (!err)
 		          console.log("update_time file is renewed");
 	              });
-
+		      fs.mkdir(path + '/comments', function (err){
+		        if (!err)
+		          console.log("comments foder is created"); 
+                      });
 		      //send response
 	              var location = req.headers['host'] + '/' + folder;	
 	              res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",

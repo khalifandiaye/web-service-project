@@ -40,11 +40,11 @@ app.post('/', collections.newCollection); //add new collection
 app.delete('/:id', collections.deleteCollection); //delete existing collection
 app.put('/:id', collections.changeCollectionMetadata); //Change collection's metadata
 
-//app.get('/:col_id/comments', comments.list); //list comments
+app.get('/:col_id/comments', comments.list); //list comments
 //app.get('/:col_id/comments/:com_id', comments.getComment); //get a comment
-//app.post('/:col_id/comments', comments.addComment); //add new comment
-//app.delete('/:col_id/comments/:com_id', comments.deleteComment); //delete existing comment
-//app.put('/:col_id/comments/:com_id', comments.replaceComment); //replace comment (edit)
+app.post('/:col_id/comments', comments.addComment); //add new comment
+app.delete('/:col_id/comments/:com_id', comments.deleteComment); //delete existing comment
+app.put('/:col_id/comments/:com_id', comments.replaceComment); //replace comment (edit)
 
 app.get('/:col_id/images', images.list); //list images
 app.get('/:col_id/images/:img_id/meta', images.getImageMeta); //get image metadata

@@ -1,8 +1,11 @@
-HTTP/1.1 200 OK
+HTTP/1.1 100 Continue
+
+HTTP/1.1 201 Created
 X-Powered-By: Express
-Set-Cookie: connect.sid=s%3AtQd%2F4eRRCWjwi8TftEAEkKMa.i%2F%2B57P2iQvtMxKRGA5tYGgGaSXePOnVXhOPlWd7FH8w; Path=/; HttpOnly
-Content-Type: application/json
-Date: Tue, 08 Jan 2013 10:13:41 GMT
+Set-Cookie: connect.sid=s%3A0Vk%2FwW6wtjVgMC3z7sNs5JIl.bOs4mWJPCQJXS5oeaJEbHAJcm00DjBZ%2BclrYtloHx5Q; Path=/; HttpOnly
+Content-Type: application/atom+xml;type=entry
+Location: 127.0.0.1:3000/1
+Date: Tue, 08 Jan 2013 13:25:16 GMT
 Connection: keep-alive
 Transfer-Encoding: chunked
 

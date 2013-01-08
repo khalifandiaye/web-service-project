@@ -241,7 +241,10 @@ exports.addImage = function(req, res) {
                         if (!err)
 		          console.log("update_time file is renewed");
 	              });
-
+		      fs.mkdir(path + '/comments', function (err){
+		        if (!err)
+		          console.log("comments folder is created"); 
+                      });
 		      //send response
 	              var location = req.headers['host'] + '/' + folder;	
 	              res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",

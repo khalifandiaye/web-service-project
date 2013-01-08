@@ -1,8 +1,8 @@
-HTTP/1.1 100 Continue
-
-HTTP/1.1 204 No Content
+HTTP/1.1 200 OK
 X-Powered-By: Express
-Set-Cookie: connect.sid=s%3An9Qi7umtxzT2cxbfC2wZZ8Rw.m2nyixR22%2BtJd2qFY0MnoNPDrL8IGBrUiQMPuo%2F%2BMEk; Path=/; HttpOnly
-Date: Tue, 08 Jan 2013 08:05:47 GMT
+Set-Cookie: connect.sid=s%3AtQd%2F4eRRCWjwi8TftEAEkKMa.i%2F%2B57P2iQvtMxKRGA5tYGgGaSXePOnVXhOPlWd7FH8w; Path=/; HttpOnly
+Content-Type: application/json
+Date: Tue, 08 Jan 2013 10:13:41 GMT
 Connection: keep-alive
+Transfer-Encoding: chunked
 

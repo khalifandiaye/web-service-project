@@ -102,6 +102,7 @@ exports.list = function(req, res){
 exports.getImageMeta = function(req, res) {
   var fs = require('fs');
   var path = './media/' + req.params.col_id + '/' + req.params.img_id + '/entry.xml';
+  var accept = req.headers["accept"];
   fs.exists(path, function (exists) {
     if(exists) {
       fs.readFile(path, "utf8", function (err, data) {
@@ -109,9 +110,22 @@ exports.getImageMeta = function(req, res) {
           //unexpected internal error
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
-          res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
-          res.write('<?xml version="1.0" encoding="utf-8"?>\n' + data);
-          res.end();
+          if (accept.indexOf("application/json") != -1) {
+            //send json
+            var xml2js = require('xml2js');
+            var parser = new xml2js.Parser();
+            //console.log (data);
+            parser.parseString(data, function(err, result){
+              
+              res.writeHead(200, {"Content-Type": "application/json"});
+              res.write(JSON.stringify(result));
+              res.end();
+            });
+          } else { 
+            res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
+            res.write('<?xml version="1.0" encoding="utf-8"?>' + data);
+            res.end();
+          }
           
         }
       }); 

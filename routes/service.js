@@ -27,7 +27,7 @@ var collectionsFeedSender = function(res, feed) {
         var file = './media/' + files[i] +'/entry.xml';
 	if (fs.existsSync(file)) {
           console.log(file);
-          feed = feed + fs.readFileSync(file) + '\n';
+          feed = feed + fs.readFileSync(file);
 	}
       }
     }
@@ -66,22 +66,22 @@ exports.collections = function(req, res){
       //generate the atom feed
       var uuid = require('node-uuid');
       var date = new Date();
-      var data = '<?xml version="1.0" encoding="utf-8"?>\n'
-		+'<feed xmlns="http://www.w3.org/2005/Atom"\n'
-		+'xmlns:app="http://www.w3.org/2007/app">\n'
-		+'<title>Collections</title>\n'
-		+'<id>urn:uuid:'+uuid.v1()+'</id>\n' 
-		+'<app:collection href="">\n'
-		  +'<title>Collections</title>\n'
-		  +'<app:accept>application/atom+xml;type=entry</app:accept>\n'
-		+'</app:collection>\n';
+      var data = '<?xml version="1.0" encoding="utf-8"?>'
+		+'<feed xmlns="http://www.w3.org/2005/Atom"'
+		+'xmlns:app="http://www.w3.org/2007/app">'
+		+'<title>Collections</title>'
+		+'<id>urn:uuid:'+uuid.v1()+'</id>' 
+		+'<app:collection href="">'
+		  +'<title>Collections</title>'
+		  +'<app:accept>application/atom+xml;type=entry</app:accept>'
+		+'</app:collection>';
 
 	fs.writeFile('./media/collections.atom', data, function (err) {
   	  if (!err)
   	    console.log('./media/collections.atom created');
 	});
         var update = date.toISOString();
-	data = data + '<updated>'+update+'</updated>\n';
+	data = data + '<updated>'+update+'</updated>';
         fs.writeFile('./media/update_time', update, function (err){
           if (!err)
 	    console.log("update_time file is renewed");
@@ -93,18 +93,32 @@ exports.collections = function(req, res){
 
 exports.collection = function(req, res) {
   var fs = require('fs');
+  var accept = req.headers["accept"];
   var path = './media/' + req.params.id + '/entry.xml';
+  
   fs.exists(path, function (exists) {
     if(exists) {
-      fs.readFile(path, "utf8", function (err, data) {
+      fs.readFile(path, function (err, data) {
         if (err) {
           //unexpected internal error
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
-          res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
-          res.write('<?xml version="1.0" encoding="utf-8"?>\n' + data);
-          res.end();
-          
+          if (accept.indexOf("application/json") != -1) {
+            //send json
+            var xml2js = require('xml2js');
+            var parser = new xml2js.Parser();
+            //console.log (data);
+            parser.parseString(data, function(err, result){
+              
+              res.writeHead(200, {"Content-Type": "application/json"});
+              res.write(JSON.stringify(result));
+              res.end();
+            });
+          } else { 
+            res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
+            res.write('<?xml version="1.0" encoding="utf-8"?>' + data);
+            res.end();
+          }
         }
       }); 
     } else {
@@ -151,10 +165,10 @@ exports.newCollection = function(req, res){
       if (newEntry.entry['title'])
 	title = newEntry.entry['title']
       else title = "no name"; 
-      xmlEntry = '<entry>\n'
-               + '<id>' + id + '</id>\n'
-               + '<title>' + title + '</title>\n'    
-               + '<updated>' + update + '</updated>\n';
+      xmlEntry = '<entry>'
+               + '<id>' + id + '</id>'
+               + '<title>' + title + '</title>'    
+               + '<updated>' + update + '</updated>';
       if (newEntry.entry['author'])
 	xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
       if (newEntry.entry['rights'])
@@ -172,16 +186,16 @@ exports.newCollection = function(req, res){
 	    if (err) errorResponse(INTERNAL_ERROR,err, res);
 	    else { 
 	      console.log('created folder ./media/' + folder);
-	      xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>\n'
-                       + '<link rel="images" href="' + folder + '/images"/>\n'
-                       + '<link rel="comments" href="' + folder + '/comments"/>\n';;
+	      xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>'
+		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>'
+                       + '<link rel="images" href="' + folder + '/images"/>'
+                       + '<link rel="comments" href="' + folder + '/comments"/>';
 	      xmlEntry = xmlEntry + '</entry>';
 	      //send response
 	      var location = req.headers['host'] + '/' + folder;	
 	      res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",
 				  "Location": location});
-              res.write('<?xml version="1.0" encoding="utf-8"?>\n' + xmlEntry + "\n");
+              res.write('<?xml version="1.0" encoding="utf-8"?>' + xmlEntry);
               res.end();
 
 	      //save into file			
@@ -263,20 +277,20 @@ exports.changeCollectionMetadata = function(req, res) {
                 if (newEntry.entry['title'])
 	          title = newEntry.entry['title']
                 else title = "no name"; 
-                var xmlEntry = '<entry>\n'
-                             + '<id>' + oldEntry.entry['id'] + '</id>\n'
-                             + '<title>' + title + '</title>\n'    
-                             + '<updated>' + update + '</updated>\n';
+                var xmlEntry = '<entry>'
+                             + '<id>' + oldEntry.entry['id'] + '</id>'
+                             + '<title>' + title + '</title>'    
+                             + '<updated>' + update + '</updated>';
                 if (newEntry.entry['author'])
 	          xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
                 if (newEntry.entry['rights'])
 	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
                 if (newEntry.entry['summary'])
                   xmlEntry = xmlEntry + '<summary>' + newEntry.entry['summary'] + '</summary>';
-                xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>\n'
-                       + '<link rel="images" href="' + folder + '/images"/>\n'
-                       + '<link rel="comments" href="' + folder + '/comments"/>\n';
+                xmlEntry = xmlEntry + '<link rel="self" href="' + folder + '"/>'
+		       + '<link rel="edit" type="application/atom+xml;type=entry" href="' + folder + '"/>'
+                       + '<link rel="images" href="' + folder + '/images"/>'
+                       + '<link rel="comments" href="' + folder + '/comments"/>';
                 xmlEntry = xmlEntry + '</entry>';
 
  	        //send response

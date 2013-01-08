@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom"
 xmlns:app="http://www.w3.org/2007/app">
 <title>Images</title>
-<id>urn:uuid:df2c00d0-5968-11e2-b05f-332b769d6fa4</id>
+<id>urn:uuid:675724f0-597b-11e2-a9d3-c1a2ed6f54b8</id>
 <app:collection href="/1/images">
 <title>Images</title>
 <app:accept>image/jpeg</app:accept>

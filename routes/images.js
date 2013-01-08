@@ -127,9 +127,10 @@ exports.getImageFile = function(req, res) {
   var path = './media/' + req.params.col_id + '/' + req.params.img_id;
   fs.exists(path, function (exists) {
     if(exists) {
-      fs.exists(path + '/image.jpeg', function(err, data) {
+      fs.exists(path + '/image.jpeg', function(exists) {
         var type;
         if (exists) type = "jpeg"; else type = "png";
+        
         fs.readFile(path + '/image.' + type, function (err, data) {
           if (err) {
             //unexpected internal error
@@ -189,7 +190,7 @@ exports.addImage = function(req, res) {
     var ct = req.headers['content-type']; 
     var title = "no name";
     if (req.headers['slug']) title = req.headers['slug'];
-    if ((ct = "image/jpeg") || (ct = "image/png")) {
+    if ((ct == "image/jpeg") || (ct == "image/png")) {
       fs.exists('./media/' + collectionNo, function (exists) {
         if(!exists) {
           errorResponse(404, "not found\n",res);
@@ -207,8 +208,8 @@ exports.addImage = function(req, res) {
                   var path = './media/' + collectionNo + '/' + folder;
                   var metaURI = collectionNo + '/images/' + folder + '/meta';
                   var imageURI = collectionNo + '/images/' + folder + '/image';
-                  if (ct = "image/jpeg") file = "image.jpeg";
-                  else if (ct = "image/png") file = "image.png";
+                  if (ct == "image/jpeg") file = "image.jpeg";
+                  else if (ct == "image/png") file = "image.png";
                   fs.writeFile(path + '/image' + file, imageData, function (err) {
 	            if (err) errorResponse(INTERNAL_ERROR,err, res);
 		    else {  
@@ -356,5 +357,46 @@ exports.replaceImageMeta = function(req, res) {
     
   });
 };
+
+exports.replaceImageFile = function(req, res) {
+  var fs = require('fs');
+  var imageData;
+  var collectionNo = req.params.col_id;
+  req.on("data", function(data) {
+    imageData = data;
+  });
+  
+  req.on("end", function(){
+    var ct = req.headers['content-type']; 
+    var type;
+    if (ct == "image/jpeg") type = "jpeg";
+    else if (ct == "image/png") type = "png";
+    var path = './media/' + req.params.col_id + '/' + req.params.img_id;
+    fs.exists(path, function (exists) {
+      if(exists) {
+        fs.exists(path + "/image." + type, function (exists) {
+ 	  fs.writeFile(path + "/image." + type, imageData, function (err) {
+	    if (err) errorResponse(INTERNAL_ERROR,err, res);
+	    else {
+              console.log("image file is updated");
+              //send response
+              res.writeHead(204);
+              res.end();
+            }
+          });
+	  if(!exists) { 
+            if (type == "jpeg") type = "png"; else type = "jpeg";
+            fs.unlink(path + "/image." + type, function (err) {});
+	  }
+        });
+      } else {
+        //console.log(path);
+        errorResponse(404, "not found\n",res);
+      }
+    });
+  });
+  
+  
+}
 
 

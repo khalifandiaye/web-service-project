@@ -1,6 +1,8 @@
+HTTP/1.1 100 Continue
+
 HTTP/1.1 204 No Content
 X-Powered-By: Express
-Set-Cookie: connect.sid=s%3AQYIm7EpQTaeepYJwSgPQXH%2Fr.HayG2bKIKncSnikvvGPn01Q0SfK9LN0xUqEGrTZP7rA; Path=/; HttpOnly
-Date: Tue, 08 Jan 2013 03:45:29 GMT
+Set-Cookie: connect.sid=s%3ArH1ub%2BO%2BRgJcV3pi16X4JB%2Fp.34%2Fc%2Br%2F1JoXLyp2%2FMKkBNOjD7hgl%2BMAjzSypdSUrEpA; Path=/; HttpOnly
+Date: Tue, 08 Jan 2013 04:53:42 GMT
 Connection: keep-alive
 

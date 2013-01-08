@@ -52,7 +52,7 @@ app.get('/:col_id/images/:img_id/image', images.getImageFile); //get image file
 app.post('/:col_id/images', images.addImage); //add new image
 app.delete('/:col_id/images/:img_id/meta', images.deleteImage); //delete image (file + metadata)
 app.put('/:col_id/images/:img_id/meta', images.replaceImageMeta); //replace (edit) image meta
-//app.put('/:col_id/images/:com_id/image', comments.replaceImageFile); //replace image file
+app.put('/:col_id/images/:img_id/image', images.replaceImageFile); //replace image file
 
 
 

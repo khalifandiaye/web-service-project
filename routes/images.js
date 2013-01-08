@@ -99,9 +99,9 @@ exports.list = function(req, res){
   }); 
 }
   
-exports.collection = function(req, res) {
+exports.getImageMeta = function(req, res) {
   var fs = require('fs');
-  var path = './media/' + req.params.id + '/entry.xml';
+  var path = './media/' + req.params.col_id + '/' + req.params.img_id + '/entry.xml';
   fs.exists(path, function (exists) {
     if(exists) {
       fs.readFile(path, "utf8", function (err, data) {
@@ -110,7 +110,7 @@ exports.collection = function(req, res) {
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
           res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
-          res.write(data);
+          res.write('<?xml version="1.0" encoding="utf-8"?>\n' + data);
           res.end();
           
         }
@@ -133,85 +133,93 @@ var nextFolder = function (files) {
   return max; 
 };
 
+var makeImageEntry = function (title, update, ct, metaURI, imageURI) {
+  var uuid = require('node-uuid');
+  var id = 'urn:uuid:'+uuid.v1();
+  var xmlEntry = '<entry>\n'
+               + '<id>' + id + '</id>\n'
+               + '<title>' + title + '</title>\n'    
+               + '<updated>' + update + '</updated>\n'
+               + '<summary type="text" />\n'
+               + '<content type="' + ct + '" src="' + imageURI + '"/>\n'
+               + '<link rel="edit-media" href="' + imageURI + '"/>\n'
+               + '<link rel="edit" href="' + metaURI + '"/>\n'
+	       + '</entry>';
+  return xmlEntry
+};
 
-
-exports.newCollection = function(req, res){
-  var xml2js = require('xml2js');
-  var parser = new xml2js.Parser();
-  
-  var newEntry;
+exports.addImage = function(req, res) {
+  var fs = require('fs');
+  var imageData;
+  var collectionNo = req.params.col_id;
   req.on("data", function(data) {
-    parser.parseString(data, function(err, result){
-       newEntry = result;
-    });
+    imageData = data;
   });
   
   req.on("end", function(){
-    var content_type = req.headers['content-type'];
-    if ((content_type == 'application/atom+xml;type=entry') && newEntry.entry) {
-      var xmlEntry;
-      var uuid = require('node-uuid');
-      var id = 'urn:uuid:'+uuid.v1();
-      var date = new Date();
-      var update = date.toISOString();
-      var title;
-      
-      if (newEntry.entry['title'])
-	title = newEntry.entry['title']
-      else title = "no name"; 
-      xmlEntry = '<entry>\n'
-               + '<id>' + id + '</id>\n'
-               + '<title>' + title + '</title>\n'    
-               + '<updated>' + update + '</updated>\n';
-      if (newEntry.entry['author'])
-	xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
-      if (newEntry.entry['rights'])
-	xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
-      if (newEntry.entry['summary'])
-	xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
-      var fs = require('fs');
-      fs.readdir('./media/', function(err, files){
-	if (err) {
-          //unexpected internal error
-          errorResponse(INTERNAL_ERROR,err, res);
+    var ct = req.headers['content-type']; 
+    var title = "no name";
+    if (req.headers['slug']) title = req.headers['slug'];
+    if ((ct = "image/jpeg") || (ct = "image/png")) {
+      fs.exists('./media/' + collectionNo, function (exists) {
+        if(!exists) {
+          errorResponse(404, "not found\n",res);
         } else {
-          var folder = nextFolder(files);
-          fs.mkdir('./media/' + folder, function(err){
-	    if (err) errorResponse(INTERNAL_ERROR,err, res);
-	    else { 
-	      console.log('created folder ./media/' + folder);
-	      xmlEntry = xmlEntry + '<link rel="self" href="'
-	               + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
-		       + folder + '"/>\n';
-	      xmlEntry = xmlEntry + '</entry>';
-	      //send response
-	      var location = req.headers['host'] + '/' + folder;	
-	      res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",
-				  "Location": location});
-              res.write('<?xml version="1.0" encoding="utf-8"?>\n' + xmlEntry + "\n");
-              res.end();
+          fs.readdir('./media/' + collectionNo + '/', function(err, files){
+            if (err) {
+              //unexpected internal error
+              errorResponse(INTERNAL_ERROR,err, res);
+            } else {
+              var folder = nextFolder(files);
+              fs.mkdir('./media/' + collectionNo + '/' + folder, function(err){
+                if (err) errorResponse(INTERNAL_ERROR,err, res);
+                else {
+                  var file;
+                  var path = './media/' + collectionNo + '/' + folder;
+                  var metaURI = collectionNo + '/images/' + folder + '/meta';
+                  var imageURI = collectionNo + '/images/' + folder + '/image';
+                  if (ct = "image/jpeg") file = "image.jpeg";
+                  else if (ct = "image/png") file = "image.png";
+                  fs.writeFile(path + '/' + file, imageData, function (err) {
+	            if (err) errorResponse(INTERNAL_ERROR,err, res);
+		    else {  
+                      console.log("created image file");
+                      var date = new Date();
+                      var update = date.toISOString();
+                      var xmlEntry = makeImageEntry(title, update, ct, metaURI, imageURI);
 
-	      //save into file			
-	      fs.writeFile('./media/' + folder + '/entry.xml', xmlEntry, function (err) {
-	        if (!err)
-		  console.log("created entry.xml");
-	      });
-	      fs.writeFile('./media/update_time', update, function (err){
-                if (!err)
-		  console.log("update_time file is renewed");
-	      });
+                      //save into file			
+	              fs.writeFile(path + '/entry.xml', xmlEntry, function (err) {
+	                if (!err)
+		          console.log("created entry.xml");
+	              });
+	              fs.writeFile('./media/' + collectionNo + '/update_time', update, function (err){
+                        if (!err)
+		          console.log("update_time file is renewed");
+	              });
+
+		      //send response
+	              var location = req.headers['host'] + '/' + folder;	
+	              res.writeHead(201, {"Content-Type": "application/atom+xml;type=entry",
+			            	      "Location": location});
+                      res.write('<?xml version="1.0" encoding="utf-8"?>\n' + xmlEntry + "\n");
+                      res.end();
+                    }
+	          });
+                }
+              });
             }
           });
         }
       });
       
     } else {
-      errorResponse(UNSUPPORTED_MEDIA, "only application/atom+xml;type=entry accepted\n", 
+      errorResponse(UNSUPPORTED_MEDIA, "only image/jpeg or image/png accepted accepted\n", 
 											res);
     }
   });
-};
+}
+
 
 exports.deleteCollection = function(req, res) {
   var fs = require('fs');

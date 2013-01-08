@@ -102,7 +102,7 @@ exports.collection = function(req, res) {
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
           res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
-          res.write(data);
+          res.write('<?xml version="1.0" encoding="utf-8"?>\n' + data);
           res.end();
           
         }

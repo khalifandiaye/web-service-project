@@ -274,16 +274,18 @@ exports.deleteImage = function(req, res) {
   });
 };
 
-exports.changeCollectionMetadata = function(req, res) {
+exports.replaceImageMeta = function(req, res) {
   var fs = require('fs');
-  var path = './media/' + req.params.id + '/entry.xml';
-  var folder = req.params.id;
+  var path = './media/' + req.params.col_id + '/' + req.params.img_id + '/entry.xml';
+  var folder = req.params.img_id;
   var xml2js = require('xml2js');
   var parser = new xml2js.Parser();
   var newEntry;
   req.on("data", function(data) {
+    //console.log(data);
     parser.parseString(data, function(err, result){
        newEntry = result;
+       //console.log(result);
     });
   });
 
@@ -291,6 +293,7 @@ exports.changeCollectionMetadata = function(req, res) {
     var content_type = req.headers['content-type'];
     fs.exists(path, function (exists) {
       if (exists) {
+        //console.log(newEntry);
         
         if ((content_type == 'application/atom+xml;type=entry') && newEntry.entry) {
           fs.readFile(path, "utf8", function (err, data) {
@@ -313,19 +316,21 @@ exports.changeCollectionMetadata = function(req, res) {
                              + '<title>' + title + '</title>\n'    
                              + '<updated>' + update + '</updated>\n';
                 if (newEntry.entry['author'])
-	          xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>';
+	          xmlEntry = xmlEntry + '<author>' + newEntry.entry['author'] + '</author>\n';
                 if (newEntry.entry['rights'])
-	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
+	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>\n';
                 if (newEntry.entry['summary'])
-                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
-                xmlEntry = xmlEntry + '<link rel="self" href="'
-	               + folder + '"/>\n'
-		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
-		       + folder + '"/>\n';
+                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['summary'] + '</summary>\n';
+                  else xmlEntry = xmlEntry + '<summary type="text" />\n'
+                var metaURI = req.params.col_id + '/images/' + req.params.img_id + '/meta';
+                var imageURI = req.params.img_id + '/images/' + req.params.img_id + '/image';
+                xmlEntry = xmlEntry + '<content type="' + content_type + '" src="' + imageURI + '"/>\n'
+                                    + '<link rel="edit-media" href="' + imageURI + '"/>\n'
+                                    + '<link rel="edit" href="' + metaURI + '"/>\n'
                 xmlEntry = xmlEntry + '</entry>';
 
  	        //send response
-                res.writeHead(200);
+                res.writeHead(204);
                 res.end();
 
 	        //save into file			
@@ -333,10 +338,10 @@ exports.changeCollectionMetadata = function(req, res) {
 	          if (!err)
 		    console.log("updated entry.xml");
 	        });
-	        fs.writeFile('./media/update_time', update, function (err){
-                  if (!err)
-		    console.log("update_time file is renewed");
-	        });
+	        fs.writeFile('./media/' + req.params.col_id + '/update_time', update, function (err){
+        	  if (!err)
+	  	    console.log("update_time file is renewed");
+      		});
               });
             }
           });   

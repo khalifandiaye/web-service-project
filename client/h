@@ -1,11 +1,6 @@
-HTTP/1.1 100 Continue
-
-HTTP/1.1 201 Created
+HTTP/1.1 204 No Content
 X-Powered-By: Express
-Set-Cookie: connect.sid=s%3AB3HRkWOU7ah5rZtboBy%2FRKFI.UO0jxcfkgpyHhc570puOw4I3DHgxH2Al3E7Op10JQsc; Path=/; HttpOnly
-Content-Type: application/atom+xml;type=entry
-Location: 127.0.0.1:3000/6
-Date: Tue, 08 Jan 2013 01:27:45 GMT
+Set-Cookie: connect.sid=s%3AQYIm7EpQTaeepYJwSgPQXH%2Fr.HayG2bKIKncSnikvvGPn01Q0SfK9LN0xUqEGrTZP7rA; Path=/; HttpOnly
+Date: Tue, 08 Jan 2013 03:45:29 GMT
 Connection: keep-alive
-Transfer-Encoding: chunked
 

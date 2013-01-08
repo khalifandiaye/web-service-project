@@ -102,7 +102,7 @@ exports.collection = function(req, res) {
 	  errorResponse(INTERNAL_ERROR,err, res);
 	} else {
           res.writeHead(200, {"Content-Type": "application/atom+xml;type=entry"});
-          res.write(data);
+          res.write('<?xml version="1.0" encoding="utf-8"?>\n' + data);
           res.end();
           
         }
@@ -272,7 +272,7 @@ exports.changeCollectionMetadata = function(req, res) {
                 if (newEntry.entry['rights'])
 	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
                 if (newEntry.entry['summary'])
-                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
+                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['summary'] + '</summary>';
                 xmlEntry = xmlEntry + '<link rel="self" href="'
 	               + folder + '"/>\n'
 		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'

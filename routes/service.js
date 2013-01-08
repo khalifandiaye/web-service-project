@@ -272,7 +272,7 @@ exports.changeCollectionMetadata = function(req, res) {
                 if (newEntry.entry['rights'])
 	          xmlEntry = xmlEntry + '<rights>' + newEntry.entry['rights'] + '</rights>';
                 if (newEntry.entry['summary'])
-                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['rights'] + '</summary>';
+                  xmlEntry = xmlEntry + '<summary>' + newEntry.entry['summary'] + '</summary>';
                 xmlEntry = xmlEntry + '<link rel="self" href="'
 	               + folder + '"/>\n'
 		       + '<link rel="edit" type="application/atom+xml;type=entry" href="'
@@ -280,7 +280,7 @@ exports.changeCollectionMetadata = function(req, res) {
                 xmlEntry = xmlEntry + '</entry>';
 
  	        //send response
-                res.writeHead(200);
+                res.writeHead(204);
                 res.end();
 
 	        //save into file			
